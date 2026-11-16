@@ -1,0 +1,129 @@
+{
+ "_how": "Run by GITCRAFT qa.features in Chromium. Steps: {press}, {hold, ms}, {tap: [x, y]}, {wait}, {assert, name}.",
+ "features": [
+  {
+   "name": "starts from the title screen",
+   "requirement": "start screen",
+   "steps": [
+    {
+     "assert": "window.__game.state === 'title'",
+     "name": "title is shown first"
+    },
+    {
+     "press": "Space"
+    },
+    {
+     "wait": 300
+    },
+    {
+     "assert": "window.__game.state === 'playing'",
+     "name": "Space starts the game"
+    },
+    {
+     "assert": "!document.getElementById('hud').hidden",
+     "name": "the HUD is visible"
+    }
+   ]
+  },
+  {
+   "name": "one vine, a little sun, no water yet",
+   "requirement": "basic water and sunlight resources",
+   "steps": [
+    {
+     "press": "Space"
+    },
+    {
+     "wait": 300
+    },
+    {
+     "assert": "window.__game.nodes === 1 && window.__game.sun > 0 && window.__game.water === 0",
+     "name": "a single vine node with sun and no water"
+    },
+    {
+     "assert": "document.getElementById('prompt').textContent.length > 0",
+     "name": "one line of direction is shown"
+    }
+   ]
+  },
+  {
+   "name": "pause and resume",
+   "requirement": "pause",
+   "steps": [
+    {
+     "press": "Space"
+    },
+    {
+     "wait": 300
+    },
+    {
+     "press": "p"
+    },
+    {
+     "wait": 150
+    },
+    {
+     "assert": "window.__game.paused === true && !document.getElementById('pauseSheet').hidden",
+     "name": "P opens the pause sheet"
+    },
+    {
+     "press": "p"
+    },
+    {
+     "wait": 150
+    },
+    {
+     "assert": "window.__game.paused === false",
+     "name": "P resumes"
+    }
+   ]
+  },
+  {
+   "name": "mute",
+   "requirement": "sound that can be turned off",
+   "steps": [
+    {
+     "press": "Space"
+    },
+    {
+     "wait": 300
+    },
+    {
+     "press": "m"
+    },
+    {
+     "wait": 100
+    },
+    {
+     "assert": "window.__game.muted === true",
+     "name": "M mutes"
+    },
+    {
+     "press": "m"
+    },
+    {
+     "wait": 100
+    },
+    {
+     "assert": "window.__game.muted === false",
+     "name": "M unmutes"
+    }
+   ]
+  },
+  {
+   "name": "ecosystem health indicator",
+   "requirement": "a basic ecosystem health indicator",
+   "steps": [
+    {
+     "press": "Space"
+    },
+    {
+     "wait": 300
+    },
+    {
+     "assert": "/ALIVE/.test(document.getElementById('stagePlate').textContent)",
+     "name": "the Alive meter is on screen"
+    }
+   ]
+  }
+ ]
+}
