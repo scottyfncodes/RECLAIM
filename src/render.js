@@ -32,7 +32,7 @@ export class Renderer {
   }
 
   resize() {
-    const dpr = this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = this.dpr = Math.min(window.devicePixelRatio || 1, 2) * (this.quality || 1);
     this.vw = window.innerWidth; this.vh = window.innerHeight;
     this.cv.width = Math.round(this.vw * dpr); this.cv.height = Math.round(this.vh * dpr);
   }
@@ -40,7 +40,7 @@ export class Renderer {
   rebuildAll() {
     const s = this.sim; this.gx.fillStyle = PAL.asphalt; this.gx.fillRect(0, 0, s.W, s.W);
     for (let y = 0; y < s.N; y++) for (let x = 0; x < s.N; x++) this.drawGroundTile(x, y);
-    this.cvx.clearRect(0, 0, s.W, s.W);
+    this.cvx.clearRect(0, 0, s.W, s.W); this.coverUsed = false;
     for (let y = 0; y < s.N; y++) for (let x = 0; x < s.N; x++) this.drawCoverTile(this.cvx, x, y);
     this.rebuildVine(); this.dirty.clear();
     for (let i = 0; i < s.N * s.N; i++) { this.drawnH[i] = s.health[i]; this.drawnM[i] = s.moist[i]; if (s.veg[i] >= 4) this.treeAge[i] = 1; }
@@ -179,6 +179,7 @@ export class Renderer {
   drawCoverTile(c, x, y) {
     const s = this.sim, TS = s.TS, i = y * s.N + x; if (s.type[i] !== T.SOIL) return;
     const v = s.veg[i]; if (v <= 0.02) return;
+    this.coverUsed = true;
     const px = x * TS, py = y * TS, R = k => hash(x, y, k), shade = s.light[i] < 0.5;
     const v1 = Math.min(1, v), v2 = Math.max(0, Math.min(1, v - 1)), v3 = Math.max(0, Math.min(1, v - 2));
     const blob = (bx, by, r, col) => { c.fillStyle = col; c.beginPath(); c.arc(bx, by, r, 0, TAU); c.fill(); };
@@ -355,7 +356,7 @@ export class Renderer {
     const wx0 = Math.max(0, cam.x - this.vw / 2 / z - 4), wy0 = Math.max(0, cam.y - this.vh / 2 / z - 4), wx1 = Math.min(s.W, cam.x + this.vw / 2 / z + 4), wy1 = Math.min(s.W, cam.y + this.vh / 2 / z + 4);
     if (wx1 <= wx0 || wy1 <= wy0) return;
     const L = this.LS, blit = cv => c.drawImage(cv, wx0 * L, wy0 * L, (wx1 - wx0) * L, (wy1 - wy0) * L, wx0, wy0, wx1 - wx0, wy1 - wy0);
-    c.imageSmoothingQuality = 'medium';
+    c.imageSmoothingQuality = 'low';
     if (wx0 <= 0 || wy0 <= 0 || wx1 >= s.W || wy1 >= s.W) {   // the rest of the city, implied
       const M = 700, W = s.W, r0 = 8 * TS, r1 = 10 * TS;
       c.fillStyle = '#3d403f'; c.fillRect(-M, -M, W + M * 2, W + M * 2);
@@ -365,7 +366,7 @@ export class Renderer {
     }
     blit(this.ground);
     this.waterAnim(c, time, wx0, wy0, wx1, wy1);
-    blit(this.cover);
+    if (this.coverUsed) blit(this.cover);
     if (ui.mainHint) this.mainHint(c, time);
     // shadows fall down-right, over ground and cover
     c.fillStyle = 'rgba(8,12,18,.30)';
@@ -373,7 +374,7 @@ export class Renderer {
       const Ls = (b.height >= 2 ? 2 : 1) * TS, x0 = b.x * TS, y0 = b.y * TS, x1 = x0 + b.w * TS, y1 = y0 + b.h * TS;
       c.beginPath(); c.moveTo(x1, y0); c.lineTo(x1 + Ls, y0 + Ls); c.lineTo(x1 + Ls, y1 + Ls); c.lineTo(x0 + Ls, y1 + Ls); c.lineTo(x0, y1); c.lineTo(x1, y1); c.closePath(); c.fill();
     }
-    blit(this.vine);
+    if (s.nx.length > 1) blit(this.vine);
     if (s.g) this.liveSegment(c);
     for (let q = this.pulses.length - 1; q >= 0; q--) {
       const p = this.pulses[q]; p.t += dt * 1.6; const head = p.t * p.path.length;
@@ -388,15 +389,9 @@ export class Renderer {
     if (ui.target) { const t = ui.target, r = 20 + Math.sin(time * 3) * 4; c.strokeStyle = t.col; c.lineWidth = 2.5 / Math.max(0.6, z); c.globalAlpha = 0.85; c.setLineDash([7, 6]); c.lineDashOffset = -time * 14; c.beginPath(); c.arc(t.x, t.y, r, 0, TAU); c.stroke(); c.setLineDash([]); c.globalAlpha = 1; }
     this.faunaDraw(c, time, dt, sway);
     this.particles(c, dt);
-    // screen space: colour grade (cold and flat when dead, low gold when alive), vignette, rain, labels
+    // screen space: rain and labels (the colour grade and vignette are a composited layer in CSS)
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const a = s.alive / 100, rain = ui.rain || 0;
-    c.fillStyle = `rgba(${Math.round(70 + 185 * a)},${Math.round(98 + 100 * a)},${Math.round(132 - 40 * a)},${(0.17 - 0.09 * a + rain * 0.05).toFixed(3)})`; c.fillRect(0, 0, this.vw, this.vh);
-    if (!this.vig || this.vigW !== this.vw || this.vigH !== this.vh) {
-      const g = c.createRadialGradient(this.vw / 2, this.vh / 2, Math.min(this.vw, this.vh) * 0.35, this.vw / 2, this.vh / 2, Math.hypot(this.vw, this.vh) * 0.6);
-      g.addColorStop(0, 'rgba(10,12,14,0)'); g.addColorStop(1, 'rgba(10,12,14,.42)'); this.vig = g; this.vigW = this.vw; this.vigH = this.vh;
-    }
-    c.fillStyle = this.vig; c.fillRect(0, 0, this.vw, this.vh);
+    const rain = ui.rain || 0;
     if (rain > 0.01 && !this.reduced) {
       c.strokeStyle = `rgba(190,215,235,${0.34 * rain})`; c.lineWidth = 1.2; c.beginPath();
       for (let q = 0; q < 70; q++) { const rx = (hash(q, 1, 9) * (this.vw + 200) + time * 140) % (this.vw + 200) - 100, ry = (hash(q, 2, 9) * this.vh + time * (700 + hash(q, 3, 9) * 300)) % this.vh; c.moveTo(rx, ry); c.lineTo(rx - 5, ry + 17); }

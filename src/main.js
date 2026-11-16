@@ -73,6 +73,11 @@ function refreshHud() {
   const a = Math.floor(sim.alive); setText('aliveNum', a);
   if (shown.bar !== a) { shown.bar = a; $('aliveBar').style.transform = `scaleX(${sim.alive / 100})`; document.documentElement.style.setProperty('--life', a >= 55 ? PAL.primary : a >= 28 ? '#c4cf48' : PAL.accent); }
   setText('sunNum', Math.floor(sim.sun)); setText('waterNum', Math.floor(sim.water));
+  const lowSun = sim.sun < FEEL.grow_cost_sun_per_tile, lowWater = sim.waterGroups > 0 && sim.water < FEEL.crack_cost_water_sidewalk;
+  if (shown.ls !== lowSun) { shown.ls = lowSun; $('sunMeter').classList.toggle('low', lowSun); }
+  if (shown.lw !== lowWater) { shown.lw = lowWater; $('waterMeter').classList.toggle('low', lowWater); }
+  const gk = Math.round(sim.alive / 2) + (G.rainLevel > 0.5 ? 100 : 0);
+  if (shown.grade !== gk) { shown.grade = gk; const t = sim.alive / 100; document.documentElement.style.setProperty('--grade', `rgba(${Math.round(70 + 185 * t)},${Math.round(98 + 100 * t)},${Math.round(132 - 40 * t)},${(0.17 - 0.09 * t + (G.rainLevel > 0.5 ? 0.05 : 0)).toFixed(3)})`); }
   const so = Math.round(113.1 * (1 - sim.sun / sim.sunCap)), wo = Math.round(113.1 * (1 - sim.water / sim.waterCap));
   if (shown.so !== so) { shown.so = so; $('sunRing').style.strokeDashoffset = so; }
   if (shown.wo !== wo) { shown.wo = wo; $('waterRing').style.strokeDashoffset = wo; }
@@ -143,7 +148,7 @@ function begin(fromSave) {
   hud.hidden = false; refreshEvos(); refreshHud();
   const last = sim.nx.length - 1; flyTo(sim.nx[fromSave ? 0 : last], sim.ny[fromSave ? 0 : last] - sim.TS * 1.2, playZoom(), reduced ? 0.01 : 1.5);
   if (sim.pendingOffer) openEvolve(sim.pendingOffer);
-  audio.play('click'); cv.focus({ preventScroll: true });
+  audio.play('click');
 }
 function newSim(save) {
   sim = new Sim(level, save); R.sim = sim; R.parts.length = 0; R.labels.length = 0; R.pulses.length = 0; R.books.length = 0; R.collapsing.length = 0;
@@ -173,6 +178,7 @@ function showTitle() {
 showTitle();
 
 $('begin').onclick = () => begin(false);
+$('title').addEventListener('click', e => { if (!e.target.closest('button, a') && G.state === 'title') begin(!$('continue').hidden); });
 $('continue').onclick = () => begin(true);
 $('pause').onclick = () => setPaused(true);
 $('resume').onclick = () => setPaused(false);
@@ -309,10 +315,11 @@ function handle(e) {
 }
 
 // ---------------------------------------------------------------- loop
-let last = performance.now(), hudAcc = 0, soilAcc = 0, rustleNodes = 0;
+let last = performance.now(), hudAcc = 0, soilAcc = 0, rustleNodes = 0, slowAvg = 17, slowN = 0;
 function frame(now) {
   requestAnimationFrame(frame);
-  const dt = Math.min(0.05, (now - last) / 1000); last = now; G.time += dt;
+  const raw = now - last, dt = Math.min(0.05, raw / 1000); last = now; G.time += dt;
+  if (raw < 250) { slowAvg += (raw - slowAvg) * 0.05; if (++slowN > 90 && slowAvg > 38 && (R.quality || 1) > 0.5) { R.quality = (R.quality || 1) > 0.8 ? 0.75 : 0.5; R.resize(); slowN = 0; slowAvg = 17; } }
   const live = G.state === 'playing' && !G.paused;
   if (cam.to) { const c = cam.to; c.t += dt / c.secs; const k = c.t >= 1 ? 1 : 1 - Math.pow(1 - c.t, 3); cam.x = c.x0 + (c.x - c.x0) * k; cam.y = c.y0 + (c.y - c.y0) * k; cam.z = c.z0 + (c.z - c.z0) * k; if (c.t >= 1) cam.to = null; clampCam(); }
   else if (G.state === 'title' && !reduced) { cam.x = sim.W / 2 + Math.sin(G.time * 0.07) * 60; cam.y = sim.W / 2 + Math.cos(G.time * 0.05) * 60; }
@@ -347,7 +354,7 @@ function frame(now) {
     G.saveAt += dt; if (G.saveAt > 10) { G.saveAt = 0; saveNow(); }
     soilAcc += dt; if (soilAcc > 2.5) { soilAcc = 0; R.refreshSoil(); }
   }
-  hudAcc += dt; if (hudAcc > 0.1 && G.state !== 'title') { hudAcc = 0; refreshHud(); if (!$('inspect').hidden && now - G.inspectAt > 4200) $('inspect').hidden = true; }
+  hudAcc += dt; if (hudAcc > 0.1) { hudAcc = 0; refreshHud(); if (!$('inspect').hidden && now - G.inspectAt > 4200) $('inspect').hidden = true; }
   G.rainLevel += ((G.rainTarget || 0) - G.rainLevel) * Math.min(1, dt * 1.2);
   const ui = G.ui; ui.rain = G.rainLevel;
   const teaching = G.state === 'playing' && !G.watching;

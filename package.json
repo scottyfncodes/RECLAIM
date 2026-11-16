@@ -1,0 +1,10 @@
+{
+  "name": "reclaim",
+  "private": true,
+  "type": "module",
+  "description": "RECLAIM: a vine takes back an abandoned intersection. Static site, no build step.",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "test": "node --test tests/sim.test.mjs"
+  }
+}
