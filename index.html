@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>RECLAIM</title>
+  <meta name="description" content="RECLAIM: you are a vine in a sidewalk crack. Take one dead intersection back. A game by HaveAnApp.">
+  <meta name="author" content="HaveAnApp">
+  <meta name="theme-color" content="#17191b">
+  <!-- App Icon Studio: icon.derivatives replaces this block with its icons.snippet.json head -->
+  <link rel="icon" href="assets/icons/favicon.ico" sizes="48x48">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preload" href="fonts/barlow-condensed-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="game" aria-label="RECLAIM: an abandoned intersection seen from above" tabindex="0"></canvas>
+
+  <div class="hud" id="hud" hidden>
+    <button class="plate stage" id="stagePlate" type="button" aria-label="Ecosystem health">
+      <span class="stage-row"><b id="stageN">I</b><span id="stageName">PERSISTENCE</span></span>
+      <span class="alive-row"><span class="alive-bar" aria-hidden="true"><i id="aliveBar"></i></span><span class="alive-num"><span id="aliveNum">0</span>% ALIVE</span></span>
+    </button>
+    <div class="evos" id="evos" aria-label="Adaptations"></div>
+    <div class="corner">
+      <button class="icon-btn" id="mute" type="button" aria-label="Sound on" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="waves" d="M16 8.5c1.2 1 1.8 2.2 1.8 3.5s-.6 2.5-1.8 3.5M18.5 6c2 1.6 3 3.6 3 6s-1 4.400-3 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="slash" d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="pause" type="button" aria-label="Pause">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.500 5H17v14h-3.500z" fill="currentColor"/></svg>
+      </button>
+    </div>
+    <div class="dock">
+      <p class="prompt" id="prompt" role="status"></p>
+      <div class="dock-row">
+        <div class="plate meter" id="sunMeter">
+          <svg viewBox="0 0 44 44" aria-hidden="true"><circle class="track" cx="22" cy="22" r="18"/><circle class="fill" id="sunRing" cx="22" cy="22" r="18"/><circle cx="22" cy="22" r="5.500" fill="currentColor"/><path d="M22 11v3M22 30v3M11 22h3M30 22h3M14.200 14.200l2.100 2.100M27.700 27.700l2.100 2.100M14.200 29.800l2.100-2.100M27.700 16.300l2.100-2.100" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span class="meter-text"><b id="sunNum">10</b><small>SUN <span>grows</span></small></span>
+        </div>
+        <div class="plate meter water" id="waterMeter">
+          <svg viewBox="0 0 44 44" aria-hidden="true"><circle class="track" cx="22" cy="22" r="18"/><circle class="fill" id="waterRing" cx="22" cy="22" r="18"/><path d="M22 12c4 5 6.500 8.300 6.500 11.500a6.500 6.500 0 0 1-13 0C15.500 20.300 18 17 22 12z" fill="currentColor"/></svg>
+          <span class="meter-text"><b id="waterNum">0</b><small>WATER <span>breaks</span></small></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden><small id="toastTag"></small><b id="toastName"></b><span id="toastLine"></span></div>
+  <div class="stamp" id="stamp" aria-live="polite" hidden><small id="stampN"></small><b id="stampName"></b><span id="stampLine"></span></div>
+  <div class="inspect plate" id="inspect" hidden><b id="inspectName"></b><span id="inspectLine"></span><small id="inspectState"></small></div>
+
+  <div class="scrim" id="evolve" role="dialog" aria-modal="true" aria-labelledby="evolveTitle" hidden>
+    <div class="sheet">
+      <small class="eyebrow">ADAPTATION</small>
+      <h2 id="evolveTitle">Choose how you grow</h2>
+      <p class="sheet-note">One of two. The other is gone for this run.</p>
+      <div class="cards" id="evolveCards"></div>
+    </div>
+  </div>
+
+  <div class="scrim" id="health" role="dialog" aria-modal="true" aria-labelledby="healthTitle" hidden>
+    <div class="sheet">
+      <small class="eyebrow">FOURTH &amp; MAIN</small>
+      <h2 id="healthTitle">Is it alive?</h2>
+      <div class="bars" id="healthBars"></div>
+      <div class="chips" id="speciesChips"></div>
+      <button class="btn" id="healthClose" type="button">Back to it</button>
+    </div>
+  </div>
+
+  <div class="scrim" id="pauseSheet" role="dialog" aria-modal="true" aria-labelledby="pauseTitle" hidden>
+    <div class="sheet">
+      <small class="eyebrow">PAUSED</small>
+      <h2 id="pauseTitle">Nothing is in a hurry</h2>
+      <ul class="how">
+        <li><b>Drag</b> a glowing tip to grow. Sun pays for it.</li>
+        <li><b>Hold</b> a slab beside your vine to crack it. Water pays for it.</li>
+        <li><b>Tap</b> anything to see what it is. Pinch to zoom.</li>
+      </ul>
+      <button class="btn primary" id="resume" type="button">Resume</button>
+      <button class="btn" id="restart" type="button">Start over</button>
+      <p class="haveanapp-byline" data-haveanapp>RECLAIM <a class="haveanapp-byline__by" href="https://haveanapp.com" rel="noopener" target="_blank">by HaveAnApp</a></p>
+    </div>
+  </div>
+
+  <section class="title" id="title">
+    <div class="title-inner">
+      <img class="logo" src="assets/brand/logo.svg" alt="RECLAIM" width="560" height="190">
+      <p class="tagline">Life finds a way. You make one.</p>
+      <div class="title-actions">
+        <button class="btn primary" id="begin" type="button">Begin</button>
+        <button class="btn" id="continue" type="button" hidden>Continue</button>
+      </div>
+      <p class="best" id="best" hidden></p>
+    </div>
+    <p class="haveanapp-byline" data-haveanapp>RECLAIM <a class="haveanapp-byline__by" href="https://haveanapp.com" rel="noopener" target="_blank">by HaveAnApp</a></p>
+  </section>
+
+  <section class="scrim end" id="end" role="dialog" aria-modal="true" aria-labelledby="endTitle" hidden>
+    <div class="sheet">
+      <small class="eyebrow">STAGE V</small>
+      <h2 class="end-title" id="endTitle">RECLAIMED</h2>
+      <p class="sheet-note">Fourth &amp; Main is no longer an address.</p>
+      <dl class="stats" id="endStats"></dl>
+      <button class="btn primary" id="watch" type="button">Keep watching</button>
+      <button class="btn" id="again" type="button">Begin again</button>
+    </div>
+  </section>
+
+  <p class="error" id="error" role="alert" hidden></p>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+{
+ "assets": {
+  "assets/audio/ambience_forest.ogg": {
+   "format": "ogg",
+   "role": "ambience",
+   "sha256": "f275129ee8306d9013e241200914e711fc5d6e333ff15f212e2aca1c902072c3",
+   "task": "audio.ambience.forest"
+  },
+  "assets/audio/ambience_wind.ogg": {
+   "format": "ogg",
+   "role": "ambience",
+   "sha256": "4f66eab782d03f50dea24300ec7a56153dd1b7fe4a9ae9d5c3ce3042f66bade3",
+   "task": "audio.ambience.wind"
+  },
+  "assets/audio/blip.ogg": {
+   "format": "ogg",
+   "role": "sfx",
+   "sha256": "7c8f6c0dd1a9cfc5758dfa7a0461ea48b88557a8a244746febbc851bdf863cd8",
+   "task": "audio.sfx.blip"
+  },
+  "assets/audio/click.ogg": {
+   "format": "ogg",
+   "role": "sfx",
+   "sha256": "f5136476ec490ee83bb5f11e7e69969695946bc892147d96d7e78d16a4c6c598",
+   "task": "audio.sfx.click"
+  },
+  "assets/audio/hit.ogg": {
+   "format": "ogg",
+   "role": "sfx",
+   "sha256": "54a44886a79feadee0c7079d057dbfef5034d9e3a1c808fe3bc370f3af0f7ba2",
+   "task": "audio.sfx.hit"
+  },
+  "assets/audio/music.ogg": {
+   "format": "ogg",
+   "role": "music",
+   "sha256": "cace55b70bc979fe29d5c8c1db601a2b6f8afe02565a06c0f5f7b7e655790275",
+   "task": "audio.music"
+  },
+  "assets/audio/powerup.ogg": {
+   "format": "ogg",
+   "role": "sfx",
+   "sha256": "ba8965c0a782ad97ea28c8d02d89238052c651461080d2f1ce429694325d382d",
+   "task": "audio.sfx.powerup"
+  },
+  "assets/audio/splash.ogg": {
+   "format": "ogg",
+   "role": "sfx",
+   "sha256": "54136f38999bc33e41ee78c046ec4bf321d46c3653c86f97da5d686981cef38d",
+   "task": "audio.sfx.splash"
+  },
+  "assets/audio/thud.ogg": {
+   "format": "ogg",
+   "role": "sfx",
+   "sha256": "0577b05db6d95363f63ee4aef1b445553d47611881a75dde21bcc400bd997b42",
+   "task": "audio.sfx.thud"
+  },
+  "assets/brand/logo.svg": {
+   "format": "svg",
+   "role": "logo",
+   "sha256": "5abfe40ea64392acc509a397eda9e3f16c49af107d657bd7d1371e1b18087892",
+   "task": "foundation.identity"
+  },
+  "assets/brand/palette.json": {
+   "format": "json",
+   "role": "palette",
+   "sha256": "1668f97b480d9d879402a2b3681fbc02b753141d21cb8a475f4a334878ae78a9",
+   "task": "foundation.identity"
+  },
+  "assets/fx/energy_atlas.json": {
+   "format": "json",
+   "role": "atlas (TexturePacker hash: Phaser, PixiJS)",
+   "sha256": "b11c6d2e6e99bdd25f5b8bb411efdcc64fd48789e83ec67b7728fbc175289de2",
+   "task": "vfx.energy"
+  },
+  "assets/fx/energy_flipbook.json": {
+   "format": "json",
+   "role": "flipbook_meta",
+   "sha256": "4f532bf569de5e6b93ff056ab962fda3c3a174134df3d82ffa1915a2153ac4b3",
+   "task": "vfx.energy"
+  },
+  "assets/fx/energy_flipbook.png": {
+   "format": "png",
+   "role": "flipbook",
+   "sha256": "b698222beccfec38dbbcbfc30a4ad0159654d5e763b274ca3df52b35053f4109",
+   "task": "vfx.energy"
+  }
+ },
+ "owner": "integration",
+ "schema": "gitcraft-assets/1"
+}
