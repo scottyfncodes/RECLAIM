@@ -23,7 +23,13 @@ const cv = $('game');
 const audio = new GameAudio(); audio.muted = store.get('reclaim_muted', false);
 let sim = new Sim(level);
 const R = new Renderer(cv, sim, { reduced, layerScale: (window.devicePixelRatio || 1) >= 2 ? 2 : 1.5 });
-{ const img = new Image(); img.onload = () => { R.fx = img; }; img.src = 'assets/fx/energy_flipbook.png'; }
+{ // the adaptation burst: frames from the atlas, timing from the flipbook sheet
+  const img = new Image(); img.src = 'assets/fx/energy_flipbook.png';
+  Promise.all([fetch('assets/fx/energy_atlas.json').then(r => r.json()), fetch('assets/fx/energy_flipbook.json').then(r => r.json()), img.decode()])
+    .then(([atlas, book]) => { R.fx = img; R.fxFrames = Object.keys(atlas.frames).sort().map(k => atlas.frames[k].frame); R.fxFps = book.fps; }).catch(() => {});
+  // identity palette → interface tokens
+  fetch('assets/brand/palette.json').then(r => r.json()).then(p => { for (const k of Object.keys(p)) document.documentElement.style.setProperty(`--${k}`, p[k]); }).catch(() => {});
+}
 
 const G = { state: 'title', paused: false, mode: null, time: 0, ui: {}, rainLevel: 0, saveAt: 0, inspectAt: 0, lastWhy: 0, watching: false };
 const cam = { x: sim.W / 2, y: sim.W / 2, z: 0.5, to: null };

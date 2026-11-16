@@ -2,10 +2,10 @@
 const SFX = ['hit', 'powerup', 'click', 'splash', 'thud', 'blip'];
 const FILES = {
   // integrated assets (Production Director)
-  hit: 'assets/audio/hit', powerup: 'assets/audio/powerup', click: 'assets/audio/click', splash: 'assets/audio/splash', thud: 'assets/audio/thud', blip: 'assets/audio/blip',
-  wind: 'assets/audio/ambience_wind', forest: 'assets/audio/ambience_forest', fanfare: 'assets/audio/music',
+  hit: 'assets/audio/hit.ogg', powerup: 'assets/audio/powerup.ogg', click: 'assets/audio/click.ogg', splash: 'assets/audio/splash.ogg', thud: 'assets/audio/thud.ogg', blip: 'assets/audio/blip.ogg',
+  wind: 'assets/audio/ambience_wind.ogg', forest: 'assets/audio/ambience_forest.ogg', fanfare: 'assets/audio/music.ogg',
   // the quiet layers
-  night: 'audio/ambience_night', rain: 'audio/ambience_rain', pad: 'audio/music_pad', bass: 'audio/music_bass', arp: 'audio/music_arp',
+  night: 'audio/ambience_night.ogg', rain: 'audio/ambience_rain.ogg', pad: 'audio/music_pad.ogg', bass: 'audio/music_bass.ogg', arp: 'audio/music_arp.ogg',
 };
 
 export class GameAudio {
@@ -16,7 +16,7 @@ export class GameAudio {
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
     this.ctx = new AC(); this.master = this.ctx.createGain(); this.master.gain.value = this.muted ? 0 : 1; this.master.connect(this.ctx.destination);
     const ogg = new Audio().canPlayType('audio/ogg; codecs="vorbis"') !== '';
-    const url = k => ogg ? `${FILES[k]}.ogg` : `audio/mp3/${FILES[k].split('/').pop()}.mp3`;
+    const url = k => ogg ? FILES[k] : `audio/mp3/${FILES[k].split('/').pop().replace('.ogg', '.mp3')}`;   // browsers without Ogg Vorbis get the mp3 transcodes
     const load = async k => {
       try { const r = await fetch(url(k)); const a = await r.arrayBuffer(); this.buf[k] = await new Promise((res, rej) => this.ctx.decodeAudioData(a, res, rej)); } catch (e) { /* a missing sound must never stop the game */ }
     };

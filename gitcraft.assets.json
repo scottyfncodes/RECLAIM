@@ -83,6 +83,60 @@
    "role": "flipbook",
    "sha256": "b698222beccfec38dbbcbfc30a4ad0159654d5e763b274ca3df52b35053f4109",
    "task": "vfx.energy"
+  },
+  "assets/icons/apple-touch-icon.png": {
+   "format": "png",
+   "role": "icon",
+   "sha256": "652dc56341188de9e43cfba35c35580fef33b82996d4a81325e0142f1959d909",
+   "task": "icon.derivatives"
+  },
+  "assets/icons/favicon-16.png": {
+   "format": "png",
+   "role": "favicon",
+   "sha256": "9be3d1a0993eb5648d8cb8e08df9c26b254f396a57447e40c4877670463a6862",
+   "task": "icon.derivatives"
+  },
+  "assets/icons/favicon-32.png": {
+   "format": "png",
+   "role": "favicon",
+   "sha256": "d345c43b227a1e7ff29994405a5fff0363d69fcc86bf3c143d4b0e9902687e7c",
+   "task": "icon.derivatives"
+  },
+  "assets/icons/favicon.ico": {
+   "format": "ico",
+   "role": "favicon",
+   "sha256": "0705f72877e790ac26d60f819731c27bd7ad8dd5dd27e46d5ffa3de362f26068",
+   "task": "icon.derivatives"
+  },
+  "assets/icons/icon-1024.png": {
+   "format": "png",
+   "role": "icon_master",
+   "sha256": "8e79c82cc6a8bd6920cb3b89a2fec20afd3a990a93ee1d9db3392a86735d6d40",
+   "task": "icon.derivatives"
+  },
+  "assets/icons/icon-192.png": {
+   "format": "png",
+   "role": "icon",
+   "sha256": "0647b777941e52692617cdc040933be0e960d0b835c4941033cc0add0be3ddc9",
+   "task": "icon.derivatives"
+  },
+  "assets/icons/icon-512.png": {
+   "format": "png",
+   "role": "icon",
+   "sha256": "653989147c117ffd8abeccd1e9e3c2c42dd6df81cf63de0306cb3a010aaab415",
+   "task": "icon.derivatives"
+  },
+  "assets/icons/icon-maskable-512.png": {
+   "format": "png",
+   "role": "icon",
+   "sha256": "3f63eac67eb8615373c209af25b7093e233f7ef218fa186dfca220363a26ad02",
+   "task": "icon.derivatives"
+  },
+  "assets/icons/icon.svg": {
+   "format": "svg",
+   "role": "icon",
+   "sha256": "ed159fb6b5578a30faed1d025e6da11979b96965b674c6f0611d1b8a860b6cad",
+   "task": "icon.derivatives"
   }
  },
  "owner": "integration",

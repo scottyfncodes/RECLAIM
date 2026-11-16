@@ -615,8 +615,8 @@ export class Renderer {
     if (this.fx && this.books.length) {
       c.globalCompositeOperation = 'lighter';
       for (let q = this.books.length - 1; q >= 0; q--) {
-        const b = this.books[q]; b.t += dt; const fr = (b.t * 24) | 0; if (fr >= 32) { this.books.splice(q, 1); continue; }
-        const sz = 128 * b.scale; c.drawImage(this.fx, (fr % 6) * 128, ((fr / 6) | 0) * 128, 128, 128, b.x - sz / 2, b.y - sz / 2, sz, sz);
+        const b = this.books[q]; b.t += dt; const fr = (b.t * this.fxFps) | 0; if (fr >= this.fxFrames.length) { this.books.splice(q, 1); continue; }
+        const f = this.fxFrames[fr], sz = f.w * b.scale; c.drawImage(this.fx, f.x, f.y, f.w, f.h, b.x - sz / 2, b.y - sz / 2, sz, sz);
       }
       c.globalCompositeOperation = 'source-over';
     }
